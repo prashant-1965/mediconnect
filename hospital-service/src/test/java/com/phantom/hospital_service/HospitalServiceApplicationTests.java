@@ -1,0 +1,13 @@
+package com.phantom.hospital_service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class HospitalServiceApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
