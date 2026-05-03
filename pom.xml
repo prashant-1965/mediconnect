@@ -20,7 +20,10 @@
 		<module>hospital-service</module>
 		<module>onboarding-service</module>
 		<module>review-service</module>
-	</modules>
+		<module>application-facility-association-service</module>
+		<module>provider-facility-association-service</module>
+        <module>common-library</module>
+    </modules>
 	<packaging>pom</packaging>
 	<groupId>com.phantom</groupId>
 	<artifactId>mediconnect</artifactId>
@@ -48,6 +51,11 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.phantom</groupId>
+				<artifactId>common-library</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>

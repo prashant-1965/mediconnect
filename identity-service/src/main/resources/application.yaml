@@ -1,32 +1,5 @@
 spring:
   application:
     name: identity-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/identity_service
-    username: ${username}
-    password: ${password}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    properties:
-      hibernate:
-        default_schema: identity_service
-
-eureka:
-  instance:
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 60
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${random.value}
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-
-server:
-  port: 0
-
-
+  config:
+    import: "optional:configserver:http://localhost:8888"
