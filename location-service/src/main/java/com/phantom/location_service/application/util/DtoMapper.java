@@ -9,14 +9,14 @@ import com.phantom.util.UIDGenerator;
 public class DtoMapper {
     public static Country countryMapper(CountryRegisterDto countryRegisterDto){
         Country country = new Country();
-        country.setCountryName(countryRegisterDto.getCountryName());
+        country.setCountryName(countryRegisterDto.getCountryName().toLowerCase());
         long countryId = UIDGenerator.uidGenerator();
         country.setCountryId(countryId);
         return country;
     }
     public static State stateMapper(StateRegisterDto stateRegisterDto){
         State state = new State();
-        state.setStateName(stateRegisterDto.getStateName());
+        state.setStateName(stateRegisterDto.getStateName().toLowerCase());
         long stateId = UIDGenerator.uidGenerator();
         state.setStateId(stateId);
         return state;

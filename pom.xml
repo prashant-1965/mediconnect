@@ -20,9 +20,9 @@
 		<module>hospital-service</module>
 		<module>onboarding-service</module>
 		<module>review-service</module>
-		<module>application-facility-association-service</module>
 		<module>provider-facility-association-service</module>
         <module>common-library</module>
+        <module>broker-service</module>
     </modules>
 	<packaging>pom</packaging>
 	<groupId>com.phantom</groupId>

@@ -12,9 +12,9 @@ import java.util.Optional;
 @Repository
 public interface CountryRepo extends JpaRepository<Country, Long> {
 
-    @Query("select new com.healthcare.finder.doctorHospitalFinder.application.projection.CountryListProjection("+
+    @Query("select new com.phantom.dto.response.CountryListProjection("+
     "c.countryName) "+
-    "from Country c")
+    "from Country c order by c.countryName")
     List<CountryListProjection> allCountryList();
 
     @Query("select c from Country c where c.countryName = :name")

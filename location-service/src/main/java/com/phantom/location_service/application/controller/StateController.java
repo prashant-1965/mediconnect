@@ -1,22 +1,34 @@
 package com.phantom.location_service.application.controller;
 
 import com.phantom.dto.request.StateRegisterDto;
+import com.phantom.dto.response.StateListProjection;
 import com.phantom.location_service.application.service.IStateService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/state")
+@RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class StateController {
-    @Autowired
-    private IStateService IStateService;
+
+    private final IStateService stateService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerDoctor(@RequestBody StateRegisterDto stateRegisterDto){
-        return ResponseEntity.status(200).body(IStateService.addState(stateRegisterDto));
+    public ResponseEntity<String> registerState(@RequestBody StateRegisterDto stateRegisterDto){
+        return ResponseEntity.status(200).body(stateService.registerState(stateRegisterDto));
+    }
+
+    @GetMapping("/findByName/{stateName}")
+    public Long findStateByName(@PathVariable String stateName){
+        return stateService.findStateByName(stateName).get().getStateId();
+    }
+
+    @GetMapping("/findByCountry/{countryName}")
+    public ResponseEntity<List<StateListProjection>> getStateListByCountry(@PathVariable String countryName){
+        return ResponseEntity.status(200).body(stateService.getStateList(countryName));
     }
 }

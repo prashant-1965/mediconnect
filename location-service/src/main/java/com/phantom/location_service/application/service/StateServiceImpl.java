@@ -9,10 +9,8 @@ import com.phantom.location_service.application.entity.State;
 import com.phantom.location_service.application.repository.CountryRepo;
 import com.phantom.location_service.application.repository.StateRepo;
 import com.phantom.location_service.application.util.DtoMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,42 +18,50 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class StateServiceImpl implements IStateService {
 
-    @Autowired
-    private StateRepo statesRepo;
-    @Autowired
-    private CountryRepo countryRepo;
+    private final StateRepo statesRepo;
+    private final CountryRepo countryRepo;
 
     @Override
-    @Cacheable(value = "StateListProjection",key = "#countryName",unless = "#result==null")
+//    @Cacheable(value = "StateListProjection",key = "#countryName",unless = "#result==null")
     public List<StateListProjection> getStateList(String countryName) throws StateException {
-        List<StateListProjection> stateListProjections = statesRepo.allStateListByCountry(countryName);
+        List<StateListProjection> stateListProjections = statesRepo.allStateListByCountry(countryName.toLowerCase());
         if(stateListProjections.isEmpty()){
+            log.error("No state is available for the country {}",countryName);
             throw new StateException("No state found in "+countryName, HttpStatus.NOT_FOUND);
         }
         return stateListProjections.stream().sorted().toList();
     }
 
     @Override
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "State", allEntries = true),
-                    @CacheEvict(value = "StateListProjection", allEntries = true)
-            }
-    )
-    public String addState(StateRegisterDto stateRegisterDto) throws StateException, CountryException {
-        Optional<Country> country = countryRepo.findCountryByName(stateRegisterDto.getCountryName());
+//    @Caching(
+//            evict = {
+//                    @CacheEvict(value = "State", allEntries = true),
+//                    @CacheEvict(value = "StateListProjection", allEntries = true)
+//            }
+//    )
+    public String registerState(StateRegisterDto stateRegisterDto) throws StateException, CountryException {
+        Optional<Country> country = countryRepo.findCountryByName(stateRegisterDto.getCountryName().toLowerCase());
         if(country.isEmpty()){
-            throw new CountryException("Our Facility is not available in "+stateRegisterDto.getCountryName(),HttpStatus.BAD_REQUEST);
+            log.error("Country not found fot the state {}",stateRegisterDto.getStateName());
+            throw new CountryException("Our Facility is not available in "+stateRegisterDto.getCountryName(),HttpStatus.NOT_FOUND);
         }
-        Optional<State> isExist = statesRepo.findByStateName(stateRegisterDto.getStateName());
+        Optional<State> isExist = this.findStateByName(stateRegisterDto.getStateName());
         if(isExist.isPresent()){
+            log.error("State already registered for the country {}",stateRegisterDto.getStateName());
             throw new StateException("State Already Exist",HttpStatus.BAD_REQUEST);
         }
         State state = DtoMapper.stateMapper(stateRegisterDto);
         state.setCountry(country.get());
         statesRepo.save(state);
         return "State added SuccessFully";
+    }
+
+    @Override
+    public Optional<State> findStateByName(String stateName) {
+        return statesRepo.findByStateName(stateName.toLowerCase());
     }
 }

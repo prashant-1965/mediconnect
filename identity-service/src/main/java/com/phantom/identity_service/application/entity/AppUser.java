@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -24,7 +25,9 @@ public class AppUser implements Serializable {
     private String userEmail;
     private String userCountry;
     private String userState;
-    private String userPassword;
+    private String userStatus; // active or inactive or Pending
+    private LocalDateTime userLocalDateTime;
+//    private String userPassword;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")

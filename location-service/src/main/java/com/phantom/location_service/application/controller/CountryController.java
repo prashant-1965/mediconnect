@@ -2,25 +2,39 @@ package com.phantom.location_service.application.controller;
 
 import com.phantom.dto.request.CountryRegisterDto;
 import com.phantom.dto.response.CountryListProjection;
-import com.phantom.location_service.application.service.ICountryServices;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.phantom.location_service.application.entity.Country;
+import com.phantom.location_service.application.service.ICountryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/country")
+@RequiredArgsConstructor
+@CrossOrigin("http://localhost:4200")
 public class CountryController {
-    @Autowired
-    private ICountryServices ICountryServices;
+
+    private final ICountryService countryServices;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerDoctor(@RequestBody CountryRegisterDto countryRegisterDto){
-        return ResponseEntity.status(200).body(ICountryServices.addCountry(countryRegisterDto));
+    public ResponseEntity<String> registerCountry(@RequestBody CountryRegisterDto countryRegisterDto){
+        return ResponseEntity.status(200).body(countryServices.registerCountry(countryRegisterDto));
     }
     @GetMapping("/getCountryList")
     public ResponseEntity<List<CountryListProjection>> getCountryList(){
-        return ResponseEntity.status(200).body(ICountryServices.getCountryList());
+        return ResponseEntity.status(200).body(countryServices.getCountryList());
+    }
+
+    @GetMapping("/findByName/{countryName}")
+    public Long findCountryByName(@PathVariable String countryName){
+        return countryServices.findCountryByName(countryName).get().getCountryId();
+    }
+
+    @DeleteMapping("/remove/{countryName}")
+    public ResponseEntity<String> removeCountryByName(@PathVariable String countryName){
+        return ResponseEntity.status(200).body(countryServices.removeCountry(countryName));
     }
 }

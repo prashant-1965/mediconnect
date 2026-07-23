@@ -8,12 +8,6 @@ import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class CountryListProjection implements Comparable<CountryListProjection>, Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class CountryListProjection {
     private String countryName;
-    @Override
-    public int compareTo(CountryListProjection o) {
-        return this.countryName.compareTo(o.countryName);
-    }
 }

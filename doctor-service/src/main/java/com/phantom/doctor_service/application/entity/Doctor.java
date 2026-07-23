@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Entity
@@ -23,11 +22,8 @@ public class Doctor implements Serializable {
     private String doctorGender;
     private int doctorYearsOfExperience;
     private double doctorRating;
-    private String doctorGraduateCollege;
-    private String doctorFieldOfExpertise;
     private String doctorEmail;
     private String doctorDetailAddress;
-    private String doctorType; // gov or private
     private Long countryId;
     private Long stateId;
     private Long hospitalId;

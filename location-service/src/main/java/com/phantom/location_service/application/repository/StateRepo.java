@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface StateRepo extends JpaRepository<State, Long> {
 
-    @Query("select new com.healthcare.finder.doctorHospitalFinder.application.projection.StateListProjection(s.stateName) " +
+    @Query("select new com.phantom.dto.response.StateListProjection(s.stateName) " +
             "from State s join s.country c " +
-            "where c.countryName = :countryName")
+            "where c.countryName = :countryName order by s.stateName")
     List<StateListProjection> allStateListByCountry(@Param("countryName") String countryName);
 
     @Query("select s from State s where s.stateName = :name")
