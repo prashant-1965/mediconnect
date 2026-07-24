@@ -1,4 +1,4 @@
-package com.phantom.doctor_service.application.entity;
+package com.phantom.broker_service.application.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,20 +8,17 @@ import java.io.Serializable;
 
 @Data
 @Entity
-public class Doctor implements Serializable {
+public class Broker implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long doctorId;
+    private Long brokerId;
     private Long appUserId;
-    private int doctorYearsOfExperience;
-    private double doctorRating;
-    private String doctorDetailAddress;
+    private String brokerAddress;
+    private double brokerRating;
+    private int brokerYearOfExperience;
     private Long hospitalId;
-
 }
-
-

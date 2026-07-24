@@ -23,17 +23,7 @@ public class CountryServiceImpl implements ICountryService {
     private final CountryRepo countryRepo;
 
     @Override
-//    @Cacheable(value = "AllCountryList")
-    public List<CountryListProjection> getCountryList() throws CountryException {
-        List<CountryListProjection> countryListProjections = countryRepo.allCountryList();
-        if(countryListProjections.isEmpty()){
-            log.error("No country registered yet!");
-            throw new CountryException("No country Found", HttpStatus.NOT_FOUND);
-        }
-        return countryListProjections;
-    }
-
-    @Override
+    @Transactional
 //    @Caching(
 //            evict = {
 //                    @CacheEvict(value = "AllCountryList",allEntries = true),
@@ -52,6 +42,17 @@ public class CountryServiceImpl implements ICountryService {
     }
 
     @Override
+//    @Cacheable(value = "AllCountryList")
+    public List<CountryListProjection> getCountryList() throws CountryException {
+        List<CountryListProjection> countryListProjections = countryRepo.allCountryList();
+        if(countryListProjections.isEmpty()){
+            log.error("No country registered yet!");
+            throw new CountryException("No country Found", HttpStatus.NOT_FOUND);
+        }
+        return countryListProjections;
+    }
+
+    @Override
     @Transactional
     public String removeCountry(String countryName) throws CountryException {
         Optional<Country> isExist = this.findCountryByName(countryName);
@@ -63,7 +64,17 @@ public class CountryServiceImpl implements ICountryService {
         return "Country Removed Successfully";
     }
 
-    public Optional<Country> findCountryByName(String countryName) {
+    private Optional<Country> findCountryByName(String countryName) {
         return countryRepo.findCountryByName(countryName.toLowerCase());
+    }
+
+    @Override
+    public Long findCountryIdByName(String countryName) throws CountryException{
+        Optional<Country> country = countryRepo.findCountryByName(countryName.toLowerCase());
+        if(country.isEmpty()){
+            log.error("Country is not registered with name: {}",countryName);
+            throw new CountryException("Country does not exist",HttpStatus.NOT_FOUND);
+        }
+        return country.get().getId();
     }
 }

@@ -26,17 +26,6 @@ public class StateServiceImpl implements IStateService {
     private final CountryRepo countryRepo;
 
     @Override
-//    @Cacheable(value = "StateListProjection",key = "#countryName",unless = "#result==null")
-    public List<StateListProjection> getStateList(String countryName) throws StateException {
-        List<StateListProjection> stateListProjections = statesRepo.allStateListByCountry(countryName.toLowerCase());
-        if(stateListProjections.isEmpty()){
-            log.error("No state is available for the country {}",countryName);
-            throw new StateException("No state found in "+countryName, HttpStatus.NOT_FOUND);
-        }
-        return stateListProjections.stream().sorted().toList();
-    }
-
-    @Override
 //    @Caching(
 //            evict = {
 //                    @CacheEvict(value = "State", allEntries = true),
@@ -61,7 +50,27 @@ public class StateServiceImpl implements IStateService {
     }
 
     @Override
-    public Optional<State> findStateByName(String stateName) {
+//    @Cacheable(value = "StateListProjection",key = "#countryName",unless = "#result==null")
+    public List<StateListProjection> getStateList(String countryName) throws StateException {
+        List<StateListProjection> stateListProjections = statesRepo.allStateListByCountry(countryName.toLowerCase());
+        if(stateListProjections.isEmpty()){
+            log.error("No state is available for the country {}",countryName);
+            throw new StateException("No state found in "+countryName, HttpStatus.NOT_FOUND);
+        }
+        return stateListProjections.stream().sorted().toList();
+    }
+
+    private Optional<State> findStateByName(String stateName) {
         return statesRepo.findByStateName(stateName.toLowerCase());
+    }
+
+    @Override
+    public Long findStateIdByName(String stateName) {
+        Optional<State> state = statesRepo.findByStateName(stateName.toLowerCase());
+        if(state.isEmpty()){
+            log.error("State is not registered with name: {}",stateName);
+            throw new StateException("State does not exist",HttpStatus.NOT_FOUND);
+        }
+        return state.get().getId();
     }
 }

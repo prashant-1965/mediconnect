@@ -8,6 +8,6 @@ public class BrokerServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BrokerServiceApplication.class, args);
-	}
 
+	}
 }

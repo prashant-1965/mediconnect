@@ -14,7 +14,7 @@ public class AppUserController {
     private final IAppUserService appUserService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> clientSignUp(@RequestBody AppUserRegisterDto appUserRegisterDto){
+    public ResponseEntity<String> appUserSignUp(@RequestBody AppUserRegisterDto appUserRegisterDto){
         return ResponseEntity.status(200).body(appUserService.addAppUser(appUserRegisterDto));
     }
 

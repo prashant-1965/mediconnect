@@ -10,26 +10,19 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 public class Hospital implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long hospitalId;
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private String hospitalName;
-    private String hospitalEmail;
+    private Long appUserId;
     private String hospitalType; // Gov or Private
+    private String hospitalAddress;
     private int hospitalYearOfEstablishment;
     private int hospitalNumOfUsersServed;
     private double hospitalRating;
-    private String hospitalMobile;
-    private String hospitalAddress;
-    private Long countryId;
-    private Long stateId;
-    private String hospitalStatus; // active or inactive or Pending
-    private LocalDateTime hospitalRegistrationDateTime;
 }
 
 

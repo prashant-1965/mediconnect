@@ -14,7 +14,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/country")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:4200")
 public class CountryController {
 
     private final ICountryService countryServices;
@@ -30,7 +29,7 @@ public class CountryController {
 
     @GetMapping("/findByName/{countryName}")
     public Long findCountryByName(@PathVariable String countryName){
-        return countryServices.findCountryByName(countryName).get().getCountryId();
+        return countryServices.findCountryIdByName(countryName);
     }
 
     @DeleteMapping("/remove/{countryName}")

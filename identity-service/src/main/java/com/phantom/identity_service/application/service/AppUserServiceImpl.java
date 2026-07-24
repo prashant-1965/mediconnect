@@ -4,9 +4,11 @@ import com.phantom.dto.request.AppUserRegisterDto;
 import com.phantom.identity_service.application.classexception.AppUserException;
 import com.phantom.identity_service.application.entity.AppUser;
 import com.phantom.identity_service.application.entity.Role;
+import com.phantom.identity_service.application.feign.LocationFeign;
 import com.phantom.identity_service.application.repository.AppUserRepository;
 import com.phantom.identity_service.application.repository.RoleRepository;
 import com.phantom.identity_service.application.util.DtoMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,8 +21,10 @@ public class AppUserServiceImpl implements IAppUserService{
 
     private final AppUserRepository appUserRepository;
     private final RoleRepository roleRepository;
+    private final LocationFeign locationFeign;
 
     @Override
+    @Transactional
 //    @Caching(
 //            evict = {
 //                    @CacheEvict(value = "loadUserByUsername",allEntries = true),
@@ -33,8 +37,18 @@ public class AppUserServiceImpl implements IAppUserService{
             throw new AppUserException("Invalid Role",HttpStatus.BAD_REQUEST);
         }
         AppUser appUser = DtoMapper.appUserMapper(appUserRegisterDto,role.get());
+        Long countryId;
+        Long stateId;
+        try {
+            countryId = locationFeign.findCountryByName(appUserRegisterDto.getUserCountry());
+            stateId = locationFeign.findStateByName(appUserRegisterDto.getUserState());
+        } catch (Exception e) {
+            throw new AppUserException("Invalid Country",HttpStatus.BAD_REQUEST);
+        }
+        appUser.setUserCountry(countryId);
+        appUser.setUserState(stateId);
         appUserRepository.save(appUser);
-        return  "Account Created Successfully";
+        return  "Account Created Successfully and Your userId is: "+appUser.getAppUserId();
     }
 
     @Override

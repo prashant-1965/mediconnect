@@ -17,4 +17,5 @@ public class DoctorRegisterDto {
     private String stateName;
     private Long hospitalId;
     private List<String> facilityNames;
+//    private String password;
 }

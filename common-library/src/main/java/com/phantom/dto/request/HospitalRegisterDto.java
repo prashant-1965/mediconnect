@@ -16,4 +16,5 @@ public class HospitalRegisterDto {
     private String countryName;
     private String stateName;
     private Map<String,String> facilitiesWithDescription;
+//    private String hospitalPassword;
 }

@@ -24,7 +24,7 @@ public class StateController {
 
     @GetMapping("/findByName/{stateName}")
     public Long findStateByName(@PathVariable String stateName){
-        return stateService.findStateByName(stateName).get().getStateId();
+        return stateService.findStateIdByName(stateName);
     }
 
     @GetMapping("/findByCountry/{countryName}")

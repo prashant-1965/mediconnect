@@ -19,7 +19,7 @@ public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Column(unique = true, nullable = false)
-    private String roleName;
+    private String roleName; // DOCTOR, USER, HOSPITAL, BROKER, ADMIN
 
     @OneToMany(mappedBy = "role",cascade = CascadeType.ALL)
     private List<AppUser> userList;

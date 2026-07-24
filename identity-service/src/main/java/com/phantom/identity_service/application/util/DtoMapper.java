@@ -13,15 +13,13 @@ public class DtoMapper {
         appUser.setUserName(appUserRegisterDto.getUserName());
         appUser.setUserMobile(appUserRegisterDto.getUserMobile());
         appUser.setUserAge(appUserRegisterDto.getUserAge());
-        appUser.setUserCountry(appUserRegisterDto.getUserCountry());
         appUser.setUserEmail(appUserRegisterDto.getUserEmail());
         appUser.setUserGender(appUserRegisterDto.getUserGender());
-        appUser.setUserState(appUserRegisterDto.getUserState());
         appUser.setRole(role);
         appUser.setUserStatus(DtoMapper.appUserStatusMapper(role.getRoleName()));
         appUser.setUserLocalDateTime(LocalDateTime.now());
         Long appUserId = UIDGenerator.uidGenerator();
-        appUser.setUserId(appUserId);
+        appUser.setAppUserId(appUserId);
         return appUser;
     }
 

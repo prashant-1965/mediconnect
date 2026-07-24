@@ -4,12 +4,14 @@ import com.phantom.doctor_service.application.classexception.DoctorException;
 import com.phantom.doctor_service.application.entity.Doctor;
 import com.phantom.doctor_service.application.feign.FacilityFeign;
 import com.phantom.doctor_service.application.feign.HospitalFeign;
-import com.phantom.doctor_service.application.feign.LocationFeign;
+import com.phantom.doctor_service.application.feign.IdentityFeign;
 import com.phantom.doctor_service.application.feign.ProviderFacilityAssociationFeign;
 import com.phantom.doctor_service.application.repository.DoctorRepository;
 import com.phantom.doctor_service.application.util.DtoMapper;
+import com.phantom.dto.request.AppUserRegisterDto;
 import com.phantom.dto.request.DoctorFacilityRegisterDto;
 import com.phantom.dto.request.DoctorRegisterDto;
+import com.phantom.util.UIDExtractor;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,33 +30,25 @@ public class DoctorServiceImpl implements IDoctorService {
     private final HospitalFeign hospitalFeign;
     private final ProviderFacilityAssociationFeign providerFacilityAssociationFeign;
     private final FacilityFeign facilityFeign;
-    private final LocationFeign locationFeign;
+    private final IdentityFeign identityFeign;
 
     @Override
     @Transactional
     public String registerDoctor(DoctorRegisterDto doctorRegisterDto) throws DoctorException {
-        Long hospitalId = doctorRegisterDto.getHospitalId();
-        boolean hospitalExists = hospitalFeign.findHospitalByHospitalId(hospitalId);
-        if(!hospitalExists){
-            throw new DoctorException("Hospital not found with id "+hospitalId, HttpStatus.NOT_FOUND);
-        }
-        Long countryId;
-        Long stateId;
-        try {
-            countryId = locationFeign.findCountryByName(doctorRegisterDto.getCountryName());
-            stateId = locationFeign.findStateByName(doctorRegisterDto.getStateName());
-        }catch (FeignException fe){
-            throw new DoctorException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
-        }
         Doctor doctor = DtoMapper.doctorMapper(doctorRegisterDto);
-        doctor.setCountryId(countryId);
-        doctor.setStateId(stateId);
+        Long appUserId;
         List<Long> facilityIds;
         try {
+            hospitalFeign.findHospitalByHospitalId(doctor.getHospitalId());
             facilityIds = facilityFeign.findAllFacilityIdByName(doctorRegisterDto.getFacilityNames());
             DoctorFacilityRegisterDto doctorFacilityRegisterDto = DtoMapper.doctorFacilityRegisterDto(doctor.getDoctorId(), facilityIds);
-            String message = providerFacilityAssociationFeign.registerDoctorFacility(doctorFacilityRegisterDto);
-            log.info(message);
+            String facilityMessage = providerFacilityAssociationFeign.registerDoctorFacility(doctorFacilityRegisterDto);
+            log.info(facilityMessage);
+            AppUserRegisterDto appUserRegisterDto = DtoMapper.doctorAppUserMapper(doctorRegisterDto);
+            String appUserMessage = identityFeign.userSignUp(appUserRegisterDto).getBody();
+            appUserId = UIDExtractor.appUserIdExtractor(appUserMessage);
+            doctor.setAppUserId(appUserId);
+            log.info(appUserMessage);
         }catch (FeignException fe){
             throw new DoctorException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
         }

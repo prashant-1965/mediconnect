@@ -14,7 +14,7 @@ public class AppUser implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private Long appUserId;
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -23,8 +23,8 @@ public class AppUser implements Serializable {
     private String userGender;
     private String userMobile;
     private String userEmail;
-    private String userCountry;
-    private String userState;
+    private Long userCountry;
+    private Long userState;
     private String userStatus; // active or inactive or Pending
     private LocalDateTime userLocalDateTime;
 //    private String userPassword;
