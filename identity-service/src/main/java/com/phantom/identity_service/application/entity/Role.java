@@ -1,5 +1,6 @@
 package com.phantom.identity_service.application.entity;
 
+import com.phantom.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,7 +20,8 @@ public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Column(unique = true, nullable = false)
-    private String roleName; // DOCTOR, USER, HOSPITAL, BROKER, ADMIN
+    @Enumerated(EnumType.STRING)
+    private UserRole roleName;
 
     @OneToMany(mappedBy = "role",cascade = CascadeType.ALL)
     private List<AppUser> userList;

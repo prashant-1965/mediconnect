@@ -4,6 +4,8 @@ import com.phantom.dto.request.AppUserRegisterDto;
 import com.phantom.dto.request.FacilityRegisterDto;
 import com.phantom.dto.request.HospitalFacilityRegisterDto;
 import com.phantom.dto.request.HospitalRegisterDto;
+import com.phantom.enums.UserRole;
+import com.phantom.enums.UserStatus;
 import com.phantom.hospital_service.application.classexception.HospitalException;
 import com.phantom.hospital_service.application.entity.Hospital;
 import com.phantom.hospital_service.application.feign.FacilityFeign;
@@ -11,6 +13,8 @@ import com.phantom.hospital_service.application.feign.IdentityFeign;
 import com.phantom.hospital_service.application.feign.ProviderFacilityAssociationFeign;
 import com.phantom.hospital_service.application.repository.HospitalRepository;
 import com.phantom.hospital_service.application.util.DtoMapper;
+import com.phantom.projection.HospitalStatusProjection;
+import com.phantom.projection.IdentityStatusProjection;
 import com.phantom.util.UIDExtractor;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -69,5 +74,29 @@ public class HospitalServiceImpl implements IHospitalService{
     @Override
     public boolean findHospitalByHospitalId(Long hospitalId) {
         return hospitalRepository.findHospitalByHospitalId(hospitalId);
+    }
+
+    @Override
+    public List<HospitalStatusProjection> findPendingHospitals(String status) throws HospitalException{
+        List<IdentityStatusProjection> identityStatusProjections;
+        try {
+            identityStatusProjections = identityFeign.findPendingUsers(UserRole.HOSPITAL, UserStatus.valueOf(status.toUpperCase()));
+        }catch (FeignException fe){
+            throw new HospitalException(fe.contentUTF8(),HttpStatus.valueOf(fe.status()));
+        }
+        if(identityStatusProjections.isEmpty()){
+            throw new HospitalException("No pending hospitals found",HttpStatus.NOT_FOUND);
+        }
+        List<HospitalStatusProjection> hospitalStatusProjections = new ArrayList<>();
+        for(IdentityStatusProjection identityProjection: identityStatusProjections){
+            Optional<Hospital> hospital = hospitalRepository.findHospitalByAppUserId(identityProjection.getAppUserId());
+            if(hospital.isEmpty()){
+                throw new HospitalException("Hospital not found with appUserId"+identityProjection.getAppUserId(),HttpStatus.NOT_FOUND);
+            }
+            HospitalStatusProjection hospitalStatusProjection = DtoMapper.HospitalIdentityMapper(hospital.get(),identityProjection);
+            hospitalStatusProjections.add(hospitalStatusProjection);
+        }
+
+        return hospitalStatusProjections;
     }
 }

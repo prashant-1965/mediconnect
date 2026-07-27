@@ -11,6 +11,10 @@ import com.phantom.doctor_service.application.util.DtoMapper;
 import com.phantom.dto.request.AppUserRegisterDto;
 import com.phantom.dto.request.DoctorFacilityRegisterDto;
 import com.phantom.dto.request.DoctorRegisterDto;
+import com.phantom.enums.UserRole;
+import com.phantom.enums.UserStatus;
+import com.phantom.projection.DoctorStatusProjection;
+import com.phantom.projection.IdentityStatusProjection;
 import com.phantom.util.UIDExtractor;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
@@ -19,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,5 +61,29 @@ public class DoctorServiceImpl implements IDoctorService {
         log.info("Doctor registration has been successfully forwarded to admin");
         doctorRepository.save(doctor);
         return "Request for "+doctorRegisterDto.getDoctorName()+" registration has been sent and we will notify you shortly";
+    }
+
+    @Override
+    public List<DoctorStatusProjection> findPendingDoctors(String status) throws DoctorException {
+        List<IdentityStatusProjection> identityStatusProjections;
+        try {
+            identityStatusProjections = identityFeign.findPendingUsers(UserRole.DOCTOR, UserStatus.valueOf(status.toUpperCase()));
+        }catch (FeignException fe){
+            throw new DoctorException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        if(identityStatusProjections.isEmpty()){
+            throw new DoctorException("No pending doctors found", HttpStatus.NOT_FOUND);
+        }
+        List<DoctorStatusProjection> doctorStatusProjections = new ArrayList<>();
+        for(IdentityStatusProjection identityProjection: identityStatusProjections){
+            Optional<Doctor> doctor = doctorRepository.findDoctorByAppUserId(identityProjection.getAppUserId());
+            if(doctor.isEmpty()){
+                throw new DoctorException("Doctor not found with appUserId"+identityProjection.getAppUserId(),HttpStatus.NOT_FOUND);
+            }
+            DoctorStatusProjection doctorStatusProjection = DtoMapper.DoctorIdentityMapper(doctor.get(),identityProjection);
+            doctorStatusProjections.add(doctorStatusProjection);
+        }
+
+        return doctorStatusProjections;
     }
 }

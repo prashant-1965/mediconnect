@@ -1,6 +1,8 @@
 package com.phantom.identity_service.application.util;
 
 import com.phantom.dto.request.AppUserRegisterDto;
+import com.phantom.enums.UserRole;
+import com.phantom.enums.UserStatus;
 import com.phantom.identity_service.application.entity.AppUser;
 import com.phantom.identity_service.application.entity.Role;
 import com.phantom.util.UIDGenerator;
@@ -23,8 +25,8 @@ public class DtoMapper {
         return appUser;
     }
 
-    private static String appUserStatusMapper(String roleName){
-        if(roleName.equals("ADMIN") || roleName.equals("USER")) return "Active";
-        return "Pending";
+    private static UserStatus appUserStatusMapper(UserRole roleName){
+        if(roleName == UserRole.ADMIN || roleName == UserRole.PATIENT) return UserStatus.ACTIVE;
+        return UserStatus.PENDING;
     }
 }

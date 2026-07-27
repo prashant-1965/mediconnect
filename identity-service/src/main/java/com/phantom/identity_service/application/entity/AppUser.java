@@ -1,5 +1,6 @@
 package com.phantom.identity_service.application.entity;
 
+import com.phantom.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,7 +26,7 @@ public class AppUser implements Serializable {
     private String userEmail;
     private Long userCountry;
     private Long userState;
-    private String userStatus; // active or inactive or Pending
+    private UserStatus userStatus;
     private LocalDateTime userLocalDateTime;
 //    private String userPassword;
 

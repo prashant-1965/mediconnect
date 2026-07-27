@@ -1,6 +1,7 @@
 package com.phantom.identity_service.application.repository;
 
 import com.phantom.identity_service.application.entity.AppUser;
+import com.phantom.projection.IdentityStatusProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,9 @@ public interface AppUserRepository extends JpaRepository<AppUser,Long> {
 
     @Query("select a from AppUser a where a.userEmail = :email")
     Optional<AppUser> findByUserEmail(@Param("email") String email);
+
+    @Query("select a from AppUser a where a.roleName = :roleName and a.status = :status")
+    Optional<IdentityStatusProjection> findPendingUserByStatusAndRole(@Param("roleName") String roleName, @Param("status") String status);
 
 //    @Transactional
 //    @Modifying

@@ -2,9 +2,12 @@ package com.phantom.broker_service.application.controller;
 
 import com.phantom.broker_service.application.service.IBrokerService;
 import com.phantom.dto.request.BrokerRegisterDto;
+import com.phantom.projection.BrokerStatusProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/broker")
@@ -18,4 +21,8 @@ public class BrokerController {
         return ResponseEntity.status(200).body(brokerService.registerBroker(brokerRegisterDto));
     }
 
+    @GetMapping("/findPendingBrokers/{status}")
+    public List<BrokerStatusProjection> findPendingBrokers(@PathVariable String status){
+        return brokerService.findPendingBrokers(status);
+    }
 }

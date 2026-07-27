@@ -2,9 +2,12 @@ package com.phantom.hospital_service.application.controller;
 
 import com.phantom.dto.request.HospitalRegisterDto;
 import com.phantom.hospital_service.application.service.IHospitalService;
+import com.phantom.projection.HospitalStatusProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,5 +24,10 @@ public class HospitalController {
     @GetMapping("/findByHospitalId/{hospitalId}")
     public boolean findHospitalByHospitalId(@PathVariable Long hospitalId){
         return hospitalService.findHospitalByHospitalId(hospitalId);
+    }
+
+    @GetMapping("/findPendingHospitals/{status}")
+    public List<HospitalStatusProjection> findPendingHospitals(@PathVariable String status){
+        return hospitalService.findPendingHospitals(status);
     }
 }

@@ -4,6 +4,9 @@ import com.phantom.doctor_service.application.entity.Doctor;
 import com.phantom.dto.request.AppUserRegisterDto;
 import com.phantom.dto.request.DoctorFacilityRegisterDto;
 import com.phantom.dto.request.DoctorRegisterDto;
+import com.phantom.enums.UserRole;
+import com.phantom.projection.DoctorStatusProjection;
+import com.phantom.projection.IdentityStatusProjection;
 import com.phantom.util.UIDGenerator;
 
 import java.util.List;
@@ -35,8 +38,27 @@ public class DtoMapper {
         appUserRegisterDto.setUserEmail(doctorRegisterDto.getDoctorEmail());
         appUserRegisterDto.setUserState(doctorRegisterDto.getStateName());
         appUserRegisterDto.setUserCountry(doctorRegisterDto.getCountryName());
-        appUserRegisterDto.setRole("DOCTOR");
+        appUserRegisterDto.setRole(UserRole.DOCTOR);
 //        appUserRegisterDto.setPassword(doctorRegisterDto.getPassword());
         return appUserRegisterDto;
+    }
+
+    public static DoctorStatusProjection DoctorIdentityMapper(Doctor doctor, IdentityStatusProjection identityStatusProjection){
+        DoctorStatusProjection doctorStatusProjection = new DoctorStatusProjection();
+        doctorStatusProjection.setUserName(identityStatusProjection.getUserName());
+        doctorStatusProjection.setUserAge(identityStatusProjection.getUserAge());
+        doctorStatusProjection.setUserGender(identityStatusProjection.getUserGender());
+        doctorStatusProjection.setUserMobile(identityStatusProjection.getUserMobile());
+        doctorStatusProjection.setUserEmail(identityStatusProjection.getUserEmail());
+        doctorStatusProjection.setUserCountry(identityStatusProjection.getUserCountry());
+        doctorStatusProjection.setUserState(identityStatusProjection.getUserState());
+        doctorStatusProjection.setUserStatus(identityStatusProjection.getUserStatus());
+        doctorStatusProjection.setDoctorId(doctor.getDoctorId());
+        doctorStatusProjection.setHospitalId(doctor.getHospitalId());
+        doctorStatusProjection.setDoctorYearsOfExperience(doctor.getDoctorYearsOfExperience());
+        doctorStatusProjection.setDoctorRating(doctor.getDoctorRating());
+        doctorStatusProjection.setDoctorDetailAddress(doctor.getDoctorDetailAddress());
+
+        return doctorStatusProjection;
     }
 }

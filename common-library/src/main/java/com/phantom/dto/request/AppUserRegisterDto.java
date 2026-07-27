@@ -1,5 +1,6 @@
 package com.phantom.dto.request;
 
+import com.phantom.enums.UserRole;
 import lombok.Data;
 
 @Data
@@ -11,6 +12,6 @@ public class AppUserRegisterDto {
     private String userEmail;
     private String userCountry;
     private String userState;
-    private String role;
+    private UserRole role;
 //    private String password;
 }
