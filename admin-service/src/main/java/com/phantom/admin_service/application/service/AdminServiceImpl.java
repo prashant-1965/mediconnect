@@ -4,6 +4,7 @@ import com.phantom.admin_service.application.classexception.AdminException;
 import com.phantom.admin_service.application.feign.BrokerFeign;
 import com.phantom.admin_service.application.feign.DoctorFeign;
 import com.phantom.admin_service.application.feign.HospitalFeign;
+import com.phantom.enums.UserStatus;
 import com.phantom.projection.BrokerStatusProjection;
 import com.phantom.projection.DoctorStatusProjection;
 import com.phantom.projection.HospitalStatusProjection;
@@ -25,7 +26,7 @@ public class AdminServiceImpl implements IAdminService{
     @Override
     public List<HospitalStatusProjection> findPendingHospitals() throws AdminException {
         try {
-            return hospitalFeign.findPendingHospitals("Pending");
+            return hospitalFeign.findPendingHospitals(UserStatus.PENDING.toString());
         }catch (FeignException fe) {
             throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
         }
@@ -34,7 +35,7 @@ public class AdminServiceImpl implements IAdminService{
     @Override
     public List<DoctorStatusProjection> findPendingDoctors() throws AdminException {
         try {
-            return doctorFeign.findPendingDoctors("Pending");
+            return doctorFeign.findPendingDoctors(UserStatus.PENDING.toString());
         }catch (FeignException fe) {
             throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
         }
@@ -43,9 +44,42 @@ public class AdminServiceImpl implements IAdminService{
     @Override
     public List<BrokerStatusProjection> findPendingBrokers() throws AdminException {
         try {
-            return brokerFeign.findPendingBrokers("Pending");
+            return brokerFeign.findPendingBrokers(UserStatus.PENDING.toString());
         }catch (FeignException fe) {
             throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
         }
+    }
+
+    @Override
+    public String updateDoctorStatus(Long doctorId, String status) throws AdminException{
+        String response;
+        try {
+            response = doctorFeign.updateDoctorStatus(doctorId, status);
+        }catch (FeignException fe) {
+            throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        return response;
+    }
+
+    @Override
+    public String updateHospitalStatus(Long hospitalId, String status) throws AdminException{
+        String response;
+        try {
+            response = hospitalFeign.updateHospitalStatus(hospitalId, status);
+        }catch (FeignException fe) {
+            throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        return response;
+    }
+
+    @Override
+    public String updateBrokerStatus(Long brokerId, String status) throws AdminException {
+        String response;
+        try {
+            response = brokerFeign.updateBrokerStatus(brokerId,status);
+        }catch (FeignException fe){
+            throw new AdminException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        return response;
     }
 }

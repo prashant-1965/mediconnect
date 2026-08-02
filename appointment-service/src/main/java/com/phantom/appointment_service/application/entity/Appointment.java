@@ -1,5 +1,6 @@
 package com.phantom.appointment_service.application.entity;
 
+import com.phantom.enums.AppointmentStatus;
 import jakarta.persistence.*;
 
 import java.io.Serial;
@@ -17,7 +18,7 @@ public class Appointment implements Serializable {
 
     private LocalDateTime appointmentDate;
     private LocalDateTime appointmentAppliedDate;
-    private String appointmentStatus; // pending/confirmed/completed/cancelled
+    private AppointmentStatus appointmentStatus; // pending/confirmed/completed/cancelled
     private Long appUserId;
     private Long doctorId;
     private Long hospitalId;

@@ -13,13 +13,10 @@ import java.util.Optional;
 @Repository
 public interface HospitalRepository extends JpaRepository<Hospital,Long> {
 
-    @Query("select count(h)>0 from Hospital h where h.hospitalEmail = :hospitalEmail")
-    boolean findHospitalByEmail(@Param("hospitalEmail") String hospitalEmail);
-
-    @Query("select count(h)>0 from Hospital h where h.hospitalId = :hospitalId")
-    boolean findHospitalByHospitalId(@Param("hospitalId") Long hospitalId);
-
     @Query("select h from Hospital h where h.appUserId = :appUserId")
     Optional<Hospital> findHospitalByAppUserId(@Param("appUserId") Long appUserId);
+
+    @Query("select h from Hospital h where h.hospitalId = :hospitalId")
+    Optional<Hospital> findHospitalByHospitalId(@Param("hospitalId") Long hospitalId);
 
 }

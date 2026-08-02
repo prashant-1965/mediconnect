@@ -17,7 +17,6 @@ public class HospitalReview  implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private double rating;
     private String comments;
     private LocalDateTime createdAt;
     private Long appUserId;

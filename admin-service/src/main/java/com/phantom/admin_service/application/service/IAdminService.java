@@ -10,4 +10,7 @@ public interface IAdminService {
     List<HospitalStatusProjection> findPendingHospitals();
     List<DoctorStatusProjection> findPendingDoctors();
     List<BrokerStatusProjection> findPendingBrokers();
+    String updateDoctorStatus(Long doctorId, String status);
+    String updateHospitalStatus(Long hospitalId, String status);
+    String updateBrokerStatus(Long brokerId, String status);
 }

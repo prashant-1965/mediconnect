@@ -8,4 +8,5 @@ import java.util.List;
 public interface IBrokerService {
     String registerBroker(BrokerRegisterDto brokerRegisterDto);
     List<BrokerStatusProjection> findPendingBrokers(String status);
+    String updateBrokerStatus(Long brokerId, String status);
 }

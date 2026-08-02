@@ -25,4 +25,20 @@ public class DoctorController {
     public List<DoctorStatusProjection> findPendingDoctors(@PathVariable String status){
         return doctorService.findPendingDoctors(status);
     }
+
+    @GetMapping("/findDoctorByDoctorId/{doctorId}")
+    public Boolean findDoctorByDoctorId(@PathVariable Long doctorId){
+        return doctorService.findDoctorByDoctorId(doctorId);
+    }
+
+    @PatchMapping("/updateDoctorStatus/{doctorId}/{status}")
+    public String updateDoctorStatus(@PathVariable Long doctorId, @PathVariable String status){
+        return doctorService.updateDoctorStatus(doctorId, status);
+    }
+
+    @PatchMapping("/updateDoctorRating/{doctorId}/{newRating}/{totalReview}")
+    public Boolean updateDoctorRating(@PathVariable Long doctorId, @PathVariable double newRating, @PathVariable int totalReview){
+        return doctorService.updateDoctorRating(doctorId, newRating, totalReview);
+    }
+
 }

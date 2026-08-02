@@ -15,8 +15,10 @@ import com.phantom.hospital_service.application.repository.HospitalRepository;
 import com.phantom.hospital_service.application.util.DtoMapper;
 import com.phantom.projection.HospitalStatusProjection;
 import com.phantom.projection.IdentityStatusProjection;
+import com.phantom.util.RatingCalculator;
 import com.phantom.util.UIDExtractor;
 import feign.FeignException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,33 +38,30 @@ public class HospitalServiceImpl implements IHospitalService{
     private final ProviderFacilityAssociationFeign providerFacilityAssociationFeign;
     private final IdentityFeign identityFeign;
 
+    @Transactional
     @Override
     public String hospitalRegistrationRequest(HospitalRegisterDto hospitalRegisterDto) throws HospitalException {
-        String hospitalEmail = hospitalRegisterDto.getHospitalEmail();
-        boolean emailExists = hospitalRepository.findHospitalByEmail(hospitalEmail);
-        if(emailExists){
-            log.error("Hospital has already registered with email {}",hospitalEmail);
-            throw new HospitalException("Hospital has already registered with email"+hospitalEmail, HttpStatus.ALREADY_REPORTED);
-        }
+        System.out.println("Before dto operations: "+hospitalRegisterDto.getHospitalAddress());
         Hospital hospital = DtoMapper.hospitalMapper(hospitalRegisterDto);
+        System.out.println("After dto operations: "+hospital.getHospitalAddress());
         Long appUserId;
         List<FacilityRegisterDto> facilityRegisterDtos = new ArrayList<>();
         for(String facilityDetails:hospitalRegisterDto.getFacilitiesWithDescription().keySet()){
             FacilityRegisterDto facilityRegisterDto = DtoMapper.hospitalFacilityMapper(facilityDetails,hospitalRegisterDto.getFacilitiesWithDescription().get(facilityDetails));
             facilityRegisterDtos.add(facilityRegisterDto);
         }
-        List<Long> facilityIdList = facilityFeign.registerFacility(facilityRegisterDtos);
-        HospitalFacilityRegisterDto hospitalFacilityRegisterDto = DtoMapper.hospitalFacilityMapper(hospital.getHospitalId(),facilityIdList);
         String facilityMessage;
         String appUserMessage;
         try {
-            facilityMessage = providerFacilityAssociationFeign.registerHospitalFacility(hospitalFacilityRegisterDto);
-            log.info(facilityMessage);
+            List<Long> facilityIdList = facilityFeign.registerFacility(facilityRegisterDtos);
+            HospitalFacilityRegisterDto hospitalFacilityRegisterDto = DtoMapper.hospitalFacilityMapper(hospital.getHospitalId(),facilityIdList);
             AppUserRegisterDto appUserRegisterDto = DtoMapper.hospitalAppUserMapper(hospitalRegisterDto);
             appUserMessage = identityFeign.userSignUp(appUserRegisterDto).getBody();
             appUserId = UIDExtractor.appUserIdExtractor(appUserMessage);
             hospital.setAppUserId(appUserId);
             log.info(appUserMessage);
+            facilityMessage = providerFacilityAssociationFeign.registerHospitalFacility(hospitalFacilityRegisterDto);
+            log.info(facilityMessage);
 
         }catch (FeignException fe){
             throw new HospitalException(fe.contentUTF8(),HttpStatus.valueOf(fe.status()));
@@ -72,8 +71,16 @@ public class HospitalServiceImpl implements IHospitalService{
     }
 
     @Override
-    public boolean findHospitalByHospitalId(Long hospitalId) {
-        return hospitalRepository.findHospitalByHospitalId(hospitalId);
+    public boolean findHospitalByHospitalId(Long hospitalId) throws HospitalException{
+        Optional<Hospital> hospital = hospitalRepository.findHospitalByHospitalId(hospitalId);
+        if(hospital.isEmpty()){
+            throw new HospitalException("Hospital not found",HttpStatus.NOT_FOUND);
+        }
+        boolean hospitalStatus = identityFeign.checkUserStatusByAppUserId(hospital.get().getAppUserId(), UserStatus.ACTIVE);
+        if(!hospitalStatus){
+            throw new HospitalException("Hospital status is INACTIVE for hospitalId: "+hospitalId,HttpStatus.FORBIDDEN);
+        }
+        return true;
     }
 
     @Override
@@ -98,5 +105,33 @@ public class HospitalServiceImpl implements IHospitalService{
         }
 
         return hospitalStatusProjections;
+    }
+
+    @Override
+    @Transactional
+    public boolean updateHospitalRating(Long hospitalId, Double newRating, int totalReviews) throws HospitalException {
+        Optional<Hospital> hospital = hospitalRepository.findHospitalByHospitalId(hospitalId);
+        if(hospital.isEmpty()){
+            throw new HospitalException("Hospital not found with hospitalId"+hospitalId,HttpStatus.NOT_FOUND);
+        }
+        double oldRating = hospital.get().getHospitalRating();
+        double updatedRating = RatingCalculator.updateRating(oldRating, newRating, totalReviews);
+        hospital.get().setHospitalRating(updatedRating);
+        return true;
+    }
+
+    @Override
+    public String updateHospitalStatus(Long hospitalId, String status) {
+        Optional<Hospital> hospital = hospitalRepository.findHospitalByHospitalId(hospitalId);
+        if(hospital.isEmpty()){
+            return "Hospital not found with hospitalId"+hospitalId;
+        }
+        String response;
+        try {
+            response = identityFeign.updateUserStatus(hospital.get().getAppUserId(), status);
+        }catch (FeignException fe) {
+            throw new HospitalException(fe.contentUTF8(),HttpStatus.valueOf(fe.status()));
+        }
+        return "Hospital "+response;
     }
 }

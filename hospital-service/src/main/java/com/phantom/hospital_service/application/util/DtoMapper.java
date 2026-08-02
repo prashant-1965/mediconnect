@@ -8,14 +8,16 @@ import com.phantom.enums.UserRole;
 import com.phantom.hospital_service.application.entity.Hospital;
 import com.phantom.projection.HospitalStatusProjection;
 import com.phantom.projection.IdentityStatusProjection;
+import com.phantom.util.UIDGenerator;
 
 import java.util.List;
 
 public class DtoMapper {
     public static Hospital hospitalMapper(HospitalRegisterDto hospitalRegisterDto){
         Hospital hospital = new Hospital();
+        hospital.setHospitalId(UIDGenerator.uidGenerator());
         hospital.setHospitalType(hospitalRegisterDto.getHospitalType());
-        hospital.setHospitalAddress(hospital.getHospitalAddress());
+        hospital.setHospitalAddress(hospitalRegisterDto.getHospitalAddress());
         hospital.setHospitalYearOfEstablishment(hospitalRegisterDto.getHospitalYearOfEstablishment());
         hospital.setHospitalNumOfUsersServed(hospitalRegisterDto.getHospitalNumOfUsersServed());
         return hospital;
@@ -52,13 +54,13 @@ public class DtoMapper {
     public static HospitalStatusProjection HospitalIdentityMapper(Hospital hospital, IdentityStatusProjection identityStatusProjection){
         HospitalStatusProjection hospitalStatusProjection = new HospitalStatusProjection();
         hospitalStatusProjection.setUserName(identityStatusProjection.getUserName());
-        hospitalStatusProjection.setUserAge(hospitalStatusProjection.getUserAge());
-        hospitalStatusProjection.setUserGender(hospitalStatusProjection.getUserGender());
-        hospitalStatusProjection.setUserMobile(hospitalStatusProjection.getUserMobile());
-        hospitalStatusProjection.setUserEmail(hospitalStatusProjection.getUserEmail());
-        hospitalStatusProjection.setUserCountry(hospitalStatusProjection.getUserCountry());
-        hospitalStatusProjection.setUserState(hospitalStatusProjection.getUserState());
-        hospitalStatusProjection.setUserStatus(hospitalStatusProjection.getUserStatus());
+        hospitalStatusProjection.setUserAge(identityStatusProjection.getUserAge());
+        hospitalStatusProjection.setUserGender(identityStatusProjection.getUserGender());
+        hospitalStatusProjection.setUserMobile(identityStatusProjection.getUserMobile());
+        hospitalStatusProjection.setUserEmail(identityStatusProjection.getUserEmail());
+        hospitalStatusProjection.setUserCountry(identityStatusProjection.getUserCountry());
+        hospitalStatusProjection.setUserState(identityStatusProjection.getUserState());
+        hospitalStatusProjection.setUserStatus(identityStatusProjection.getUserStatus());
         hospitalStatusProjection.setHospitalId(hospital.getHospitalId());
         hospitalStatusProjection.setHospitalType(hospital.getHospitalType());
         hospitalStatusProjection.setHospitalAddress(hospital.getHospitalAddress());

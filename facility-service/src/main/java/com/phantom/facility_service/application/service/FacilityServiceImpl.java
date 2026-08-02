@@ -6,6 +6,7 @@ import com.phantom.facility_service.application.classexception.FacilityException
 import com.phantom.facility_service.application.entity.Facility;
 import com.phantom.facility_service.application.repository.FacilityRepository;
 import com.phantom.facility_service.application.util.DtoMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -20,30 +21,43 @@ public class FacilityServiceImpl implements IFacilityService{
     private final FacilityRepository facilityRepository;
 
 
+    @Transactional
     @Override
-//    @Caching(evict={
-//            @CacheEvict(value = "FacilityListProjection",allEntries = true),
-//            @CacheEvict(value = "facilityListByHospitalName",allEntries = true),
-//            @CacheEvict(value = "MedicalFacilities",allEntries = true)
-//    })
     public List<Long> registerFacility(List<FacilityRegisterDto> facilityRegisterDtos) {
+
+        Map<String, String> facilityMap = new LinkedHashMap<>();
+        for (FacilityRegisterDto dto : facilityRegisterDtos) {
+            facilityMap.putIfAbsent(dto.getFacilityName().toLowerCase(), dto.getFacilityDescription());
+        }
+        List<Facility> existingFacilities = facilityRepository.findAllFacilityByName(
+                new ArrayList<>(facilityMap.keySet())
+        );
         List<Long> facilityIds = new ArrayList<>();
-        Set<String> facilityNames = new HashSet<>();
-        List<Facility> alreadyRegisteredFacilities = facilityRepository.findAllFacilityByName(facilityRegisterDtos.stream()
-                .map(FacilityRegisterDto::getFacilityName).toList());
-        for(Facility facility:alreadyRegisteredFacilities){
+        Set<String> existingFacilityNames = new HashSet<>();
+        for (Facility facility : existingFacilities) {
+            existingFacilityNames.add(facility.getFacilityName());
             facilityIds.add(facility.getFacilityId());
-            facilityNames.add(facility.getFacilityName());
         }
-        List<FacilityRegisterDto> newFacilityRegistrationDto = facilityRegisterDtos.stream()
-                .filter(dto -> !facilityNames.contains(dto.getFacilityName())).toList();
         List<Facility> newFacilities = new ArrayList<>();
-        for(FacilityRegisterDto facilityRegisterDto:newFacilityRegistrationDto){
-            Facility facility = DtoMapper.facilityMapper(facilityRegisterDto);
-            newFacilities.add(facility);
-            facilityIds.add(facility.getFacilityId());
+
+        for (Map.Entry<String, String> entry : facilityMap.entrySet()) {
+
+            if (!existingFacilityNames.contains(entry.getKey())) {
+
+                Facility facility = DtoMapper.facilityMapper(
+                        entry.getKey(),
+                        entry.getValue()
+                );
+
+                newFacilities.add(facility);
+            }
         }
-        facilityRepository.saveAll(newFacilities);
+        if (!newFacilities.isEmpty()) {
+            facilityRepository.saveAll(newFacilities);
+            for (Facility facility : newFacilities) {
+                facilityIds.add(facility.getFacilityId());
+            }
+        }
         return facilityIds;
     }
 
@@ -67,28 +81,4 @@ public class FacilityServiceImpl implements IFacilityService{
         return facilityIds;
     }
 
-//    @Override
-//    @Cacheable(value = "doctorListByDoctorEmail",key = "#doctorEmail",condition = "#doctorEmail!=null")
-//    public List<String> findFacilityByDoctorEmail(String doctorEmail) throws FacilityException {
-//        List<String> doctorList = facilityRepository.findFacilityByDoctorEmail(doctorEmail);
-//        if(doctorList.isEmpty()){
-//            throw new FacilityException(doctorEmail +" is not providing any Facility!",HttpStatus.NOT_FOUND);
-//        }
-//        return doctorList;
-//    }
-
-//    @Override
-//    @Cacheable(value = "facilityListByHospitalName",key = "#hospitalName", unless = "#result==null")
-//    public List<String> findFacilityByHospitalName(String hospitalName) throws FacilityException {
-//        List<String> facilityList = facilityRepository.getFacilityByHospitalName(hospitalName);
-//        if (facilityList.isEmpty()){
-//            throw new FacilityException(hospitalName+" doesn't provide any facility",HttpStatus.NOT_FOUND);
-//        }
-//        return facilityList;
-//    }
-
-    @Cacheable(value = "MedicalFacilities",key = "#facilityName", unless = "#result==null")
-    public Optional<Facility> findByFacilityName(String facilityName) {
-        return facilityRepository.findByFacilityName(facilityName);
-    }
 }

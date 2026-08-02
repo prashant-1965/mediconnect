@@ -5,6 +5,7 @@ import com.phantom.provider_facility_association_service.application.classexcept
 import com.phantom.provider_facility_association_service.application.entity.HospitalFacilityMapping;
 import com.phantom.provider_facility_association_service.application.repository.HospitalFacilityRepository;
 import com.phantom.provider_facility_association_service.application.util.DtoMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class HospitalFacilityServiceImpl implements IHospitalFacilityService{
     private final HospitalFacilityRepository hospitalFacilityRepository;
 
     @Override
+    @Transactional
     public String registerHospitalFacility(HospitalFacilityRegisterDto hospitalFacilityRegisterDto) throws HospitalFacilityException {
 
         List<HospitalFacilityMapping> hospitalFacilityMappings = new ArrayList<>();

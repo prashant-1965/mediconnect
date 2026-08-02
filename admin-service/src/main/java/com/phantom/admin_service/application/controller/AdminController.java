@@ -6,9 +6,7 @@ import com.phantom.projection.DoctorStatusProjection;
 import com.phantom.projection.HospitalStatusProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +29,20 @@ public class AdminController {
     @GetMapping("/pending-brokers")
     public ResponseEntity<List<BrokerStatusProjection>> findPendingBrokers(){
         return ResponseEntity.status(200).body(adminService.findPendingBrokers());
+    }
+
+    @PatchMapping("/update-doctor-status/{doctorId}/{status}")
+    public ResponseEntity<String> updateDoctorStatus(@PathVariable Long doctorId, @PathVariable String status){
+        return ResponseEntity.status(200).body(adminService.updateDoctorStatus(doctorId, status));
+    }
+
+    @PatchMapping("/update-hospital-status/{hospitalId}/{status}")
+    public ResponseEntity<String> updateHospitalStatus(@PathVariable Long hospitalId, @PathVariable String status){
+        return ResponseEntity.status(200).body(adminService.updateHospitalStatus(hospitalId, status));
+    }
+
+    @PatchMapping("/update-broker-status/{brokerId}/{status}")
+    public ResponseEntity<String> updateBrokerStatus(@PathVariable Long brokerId, @PathVariable String status){
+        return ResponseEntity.status(200).body(adminService.updateBrokerStatus(brokerId, status));
     }
 }

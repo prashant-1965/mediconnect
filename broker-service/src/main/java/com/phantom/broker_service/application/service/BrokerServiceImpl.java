@@ -76,4 +76,19 @@ public class BrokerServiceImpl implements IBrokerService {
 
         return brokerStatusProjections;
     }
+
+    @Override
+    public String updateBrokerStatus(Long brokerId, String status) {
+        Optional<Broker> broker = brokerRepository.findBrokerByBrokerId(brokerId);
+        if(broker.isEmpty()){
+            throw new BrokerException("Broker not found with brokerId"+brokerId,HttpStatus.NOT_FOUND);
+        }
+        String response;
+        try {
+            response = identityFeign.updateUserStatus(broker.get().getAppUserId(), status);
+        }catch (FeignException fe){
+            throw new BrokerException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        return "Broker "+response;
+    }
 }

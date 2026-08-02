@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface BrokerRepository extends JpaRepository<Broker,Long> {
     Optional<Broker> findBrokerByAppUserId(Long appUserId);
+    Optional<Broker> findBrokerByBrokerId(Long brokerId);
 }

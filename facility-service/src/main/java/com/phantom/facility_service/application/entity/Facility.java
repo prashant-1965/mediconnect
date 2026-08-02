@@ -15,6 +15,7 @@ public class Facility implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private Long facilityId;
+    @Column(unique = true)
     private String facilityName;
     private String facilityDescription;
 }

@@ -1,9 +1,11 @@
 package com.phantom.projection;
 
 import com.phantom.enums.UserStatus;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class IdentityStatusProjection {
     private Long appUserId;
     private String userName;

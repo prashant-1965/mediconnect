@@ -3,6 +3,7 @@ package com.phantom.admin_service.application.feign;
 import com.phantom.projection.DoctorStatusProjection;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -12,4 +13,8 @@ public interface DoctorFeign {
 
     @GetMapping("/doctor/findPendingDoctors/{status}")
     List<DoctorStatusProjection> findPendingDoctors(@PathVariable String status);
+
+    @PatchMapping("/updateDoctorStatus/{doctorId}/{status}")
+    String updateDoctorStatus(@PathVariable Long doctorId, @PathVariable String status);
+
 }

@@ -25,4 +25,9 @@ public class BrokerController {
     public List<BrokerStatusProjection> findPendingBrokers(@PathVariable String status){
         return brokerService.findPendingBrokers(status);
     }
+
+    @PatchMapping("/updateBrokerStatus/{brokerId}/{status}")
+    public String updateBrokerStatus(@PathVariable Long brokerId, @PathVariable String status){
+        return brokerService.updateBrokerStatus(brokerId, status);
+    }
 }

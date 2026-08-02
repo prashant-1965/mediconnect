@@ -9,4 +9,6 @@ public interface IHospitalService {
     String hospitalRegistrationRequest(HospitalRegisterDto hospitalRegisterDto);
     boolean findHospitalByHospitalId(Long hospitalId);
     List<HospitalStatusProjection> findPendingHospitals(String status);
+    boolean updateHospitalRating(Long hospitalId, Double newRating, int totalReviews);
+    String updateHospitalStatus(Long hospitalId, String status);
 }

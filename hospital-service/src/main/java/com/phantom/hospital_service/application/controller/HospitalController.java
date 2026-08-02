@@ -30,4 +30,14 @@ public class HospitalController {
     public List<HospitalStatusProjection> findPendingHospitals(@PathVariable String status){
         return hospitalService.findPendingHospitals(status);
     }
+
+    @PatchMapping("/updateHospitalRating/{hospitalId}/{newRating}/{totalReview}")
+    public Boolean updateHospitalRating(@PathVariable Long hospitalId, @PathVariable double newRating, @PathVariable int totalReview){
+        return hospitalService.updateHospitalRating(hospitalId, newRating, totalReview);
+    }
+
+    @PatchMapping("/updateHospitalStatus/{hospitalId}/{status}")
+    public String updateHospitalStatus(@PathVariable Long hospitalId, @PathVariable String status){
+        return hospitalService.updateHospitalStatus(hospitalId, status);
+    }
 }

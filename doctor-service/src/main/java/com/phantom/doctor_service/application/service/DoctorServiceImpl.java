@@ -15,6 +15,7 @@ import com.phantom.enums.UserRole;
 import com.phantom.enums.UserStatus;
 import com.phantom.projection.DoctorStatusProjection;
 import com.phantom.projection.IdentityStatusProjection;
+import com.phantom.util.RatingCalculator;
 import com.phantom.util.UIDExtractor;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
@@ -45,7 +46,10 @@ public class DoctorServiceImpl implements IDoctorService {
         Long appUserId;
         List<Long> facilityIds;
         try {
-            hospitalFeign.findHospitalByHospitalId(doctor.getHospitalId());
+            boolean hospitalExists = hospitalFeign.findHospitalByHospitalId(doctor.getHospitalId());
+            if (!hospitalExists){
+                throw new DoctorException("Hospital not found", HttpStatus.NOT_FOUND);
+            }
             facilityIds = facilityFeign.findAllFacilityIdByName(doctorRegisterDto.getFacilityNames());
             DoctorFacilityRegisterDto doctorFacilityRegisterDto = DtoMapper.doctorFacilityRegisterDto(doctor.getDoctorId(), facilityIds);
             String facilityMessage = providerFacilityAssociationFeign.registerDoctorFacility(doctorFacilityRegisterDto);
@@ -85,5 +89,45 @@ public class DoctorServiceImpl implements IDoctorService {
         }
 
         return doctorStatusProjections;
+    }
+
+    @Override
+    public boolean findDoctorByDoctorId(Long doctorId) {
+        Optional<Doctor> doctor = doctorRepository.findDoctorByDoctorId(doctorId);
+        if(doctor.isEmpty()){
+            throw new DoctorException("Doctor not found with doctorId"+doctorId,HttpStatus.NOT_FOUND);
+        }
+        boolean doctorStatus = identityFeign.checkUserStatusByAppUserId(doctor.get().getAppUserId(), UserStatus.ACTIVE);
+        if(!doctorStatus){
+            throw new DoctorException("Doctor status is INACTIVE with doctorId"+doctorId,HttpStatus.FORBIDDEN);
+        }
+        return  doctorStatus;
+    }
+
+    @Override
+    public boolean updateDoctorRating(Long doctorId, Double newRating, int totalReviews) throws DoctorException {
+        Optional<Doctor> doctor = doctorRepository.findDoctorByDoctorId(doctorId);
+        if(doctor.isEmpty()){
+            throw new DoctorException("Doctor not found with doctorId"+doctorId,HttpStatus.NOT_FOUND);
+        }
+        double oldRating = doctor.get().getDoctorRating();
+        double updatedRating = RatingCalculator.updateRating(oldRating, newRating, totalReviews);
+        doctor.get().setDoctorRating(updatedRating);
+        return true;
+    }
+
+    @Override
+    public String updateDoctorStatus(Long doctorId, String status) {
+        Optional<Doctor> doctor = doctorRepository.findDoctorByDoctorId(doctorId);
+        if(doctor.isEmpty()){
+            throw new DoctorException("Doctor not found with doctorId"+doctorId,HttpStatus.NOT_FOUND);
+        }
+        String response;
+        try {
+            response = identityFeign.updateUserStatus(doctor.get().getAppUserId(),status);
+        } catch (FeignException fe) {
+            throw new DoctorException(fe.contentUTF8(), HttpStatus.valueOf(fe.status()));
+        }
+        return response;
     }
 }
